@@ -6,6 +6,32 @@
     <RootNamespace>text_analysis</RootNamespace>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Remove="reviews\review1.txt" />
+    <None Remove="reviews\review2.txt" />
+    <None Remove="reviews\review3.txt" />
+    <None Remove="reviews\review4.txt" />
+    <None Remove="reviews\review5.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="reviews\review1.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="reviews\review2.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="reviews\review3.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="reviews\review4.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="reviews\review5.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
     <ItemGroup>
     <PackageReference Include="Azure.AI.TextAnalytics" Version="5.3.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="3.1.3" />
