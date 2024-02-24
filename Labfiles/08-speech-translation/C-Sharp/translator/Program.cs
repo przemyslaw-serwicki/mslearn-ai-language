@@ -53,8 +53,9 @@ namespace speech_translation
                     targetLanguage=Console.ReadLine().ToLower();
                     if (translationConfig.TargetLanguages.Contains(targetLanguage))
                     {
-                        string translatedText = await TranslateFromMicrophone(targetLanguage);
+                        //string translatedText = await TranslateFromMicrophone(targetLanguage);
                         //string translatedText = await TranslateFromAudioFile(targetLanguage);
+                        string translatedText = await TranslateFromMicrophoneDirectlyToFile(targetLanguage);
                         Console.WriteLine("Press any key to synthesize the content now!");
                         Console.ReadKey();
                         await SynthesizeTranslation(translatedText, targetLanguage);
@@ -121,6 +122,31 @@ namespace speech_translation
             {
                 Console.WriteLine(speak.Reason);
             }
+        }
+
+        static async Task<string> TranslateFromMicrophoneDirectlyToFile(string targetLanguage)
+        {
+            string translation = "";
+
+            // Translate speech
+            using AudioConfig audioConfig = AudioConfig.FromDefaultMicrophoneInput();
+            using TranslationRecognizer translator = new TranslationRecognizer(translationConfig, audioConfig);
+            using SpeechSynthesizer synthesizer = new SpeechSynthesizer(translationConfig);
+
+            Console.WriteLine("Speak now...");
+            TranslationRecognitionResult result = await translator.RecognizeOnceAsync();
+            Console.WriteLine($"Translating '{result.Text}'");
+            translation = result.Translations[targetLanguage];
+            Console.OutputEncoding = Encoding.UTF8;
+            Console.WriteLine(translation);
+
+            // Save the synthesized translation to a file
+            var synthesisResult = await synthesizer.SpeakTextAsync(translation);
+            using var stream = AudioDataStream.FromResult(synthesisResult);
+            string audioFileName = "translation_audio.wav";
+            await stream.SaveToWaveFileAsync(audioFileName);
+            Console.WriteLine($"Translation saved to {audioFileName}");
+            return translation;
         }
     }
 }
