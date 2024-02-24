@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 // Import namespaces
 using Microsoft.CognitiveServices.Speech;
 using Microsoft.CognitiveServices.Speech.Audio;
+using System.Media;
 
 
 namespace speaking_clock
@@ -33,7 +34,8 @@ namespace speaking_clock
                 // Get spoken input
                 string command = "";
                 command = await TranscribeCommand();
-                await TellTime(command);
+                //await TellTime(command);
+                Console.ReadLine();
 
             }
             catch (Exception ex)
@@ -46,11 +48,20 @@ namespace speaking_clock
         {
             string command = "";
 
-            // Configure speech recognition
-            using AudioConfig audioConfig = AudioConfig.FromDefaultMicrophoneInput();
-            using SpeechRecognizer speechRecognizer = new SpeechRecognizer(speechConfig, audioConfig);
-            Console.WriteLine("Speak now...");
+            // Configure speech recognition microphone
+            //using AudioConfig audioConfig = AudioConfig.FromDefaultMicrophoneInput();
+            //using SpeechRecognizer speechRecognizer = new SpeechRecognizer(speechConfig, audioConfig);
+            //Console.WriteLine("Speak now...");
 
+            // Configure speech recognition from an audio file
+            string audioFile = "time.wav";
+            //audioFile = "gladiator.wav";
+            //audioFile = "wincrowd.wav";
+            audioFile = "dream.wav";
+            SoundPlayer wavPlayer = new SoundPlayer(audioFile);
+            wavPlayer.Play();
+            using AudioConfig audioConfig = AudioConfig.FromWavFileInput(audioFile);
+            using SpeechRecognizer speechRecognizer = new SpeechRecognizer(speechConfig, audioConfig);
 
             // Process speech input
             SpeechRecognitionResult speech = await speechRecognizer.RecognizeOnceAsync();
