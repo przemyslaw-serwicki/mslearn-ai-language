@@ -6,8 +6,20 @@
     <RootNamespace>speech_translation</RootNamespace>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Remove="station.wav" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="station.wav">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
     <ItemGroup>
+    <PackageReference Include="Microsoft.CognitiveServices.Speech" Version="1.30.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="3.1.3" />
+    <PackageReference Include="System.Windows.Extensions" Version="8.0.0" />
   </ItemGroup>
 
   <ItemGroup>
