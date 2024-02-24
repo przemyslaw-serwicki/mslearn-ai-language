@@ -99,10 +99,30 @@ namespace speaking_clock
                 Console.WriteLine(speak.Reason);
             }
 
+            string responseSsml = $@"
+     <speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xml:lang='en-US' xmlns:mstts=""https://www.w3.org/2001/mstts"">
+    <voice name=""en-US-AriaNeural""> 
+        <mstts:express-as style=""cheerful"" styledegree=""2""> 
+          I will say what time is it
+        </mstts:express-as> 
+    </voice> 
+         <voice name='en-GB-LibbyNeural'>
+             {responseText}
+             <break strength='strong'/>
+             Time to end this lab!
+         </voice>
+     </speak>";
+            speak = await speechSynthesizer.SpeakSsmlAsync(responseSsml);
+            if (speak.Reason != ResultReason.SynthesizingAudioCompleted)
+            {
+                Console.WriteLine(speak.Reason);
+            }
+
 
             // Print the response
             Console.WriteLine(responseText);
             Console.WriteLine("You said before" + commandToSay);
+            Console.WriteLine(responseSsml);
         }
 
     }
