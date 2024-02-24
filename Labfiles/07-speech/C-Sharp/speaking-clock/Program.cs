@@ -36,7 +36,8 @@ namespace speaking_clock
                 //command = await TranscribeCommandFromMicrophone();
                 command = await TranscribeCommandFromAudio();
                 //command = await TranscribeCommandFromAudioWithChunks();
-                await TellTime(command);
+                //await TellCommand(command);
+                await TellWithSsml();
                 Console.ReadLine();
 
             }
@@ -196,7 +197,7 @@ namespace speaking_clock
             return command;
         }
 
-        static async Task TellTime(string commandToSay)
+        static async Task TellCommand(string commandToSay)
         {
             var now = DateTime.Now;
             string responseText = "The time is " + now.Hour.ToString() + ":" + now.Minute.ToString("D2");
@@ -220,20 +221,38 @@ namespace speaking_clock
                 Console.WriteLine(speak.Reason);
             }
 
+
+            // Print the response
+            Console.WriteLine(responseText);
+            Console.WriteLine("You said before" + commandToSay);
+        }
+
+        static async Task TellWithSsml()
+        {
+            var now = DateTime.Now;
+            string responseText = "The time is " + now.Hour.ToString() + ":" + now.Minute.ToString("D2");
+
+            // Configure speech synthesis
+            speechConfig.SpeechSynthesisVoiceName = "en-GB-LibbyNeural";
+            using SpeechSynthesizer speechSynthesizer = new SpeechSynthesizer(speechConfig);
+
+
+            // Synthesize spoken output
             string responseSsml = $@"
      <speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xml:lang='en-US' xmlns:mstts=""https://www.w3.org/2001/mstts"">
-    <voice name=""en-US-AriaNeural""> 
-        <mstts:express-as style=""cheerful"" styledegree=""2""> 
-          I will say what time is it
-        </mstts:express-as> 
-    </voice> 
-         <voice name='en-GB-LibbyNeural'>
-             {responseText}
-             <break strength='strong'/>
-             Time to end this lab!
-         </voice>
+        <voice name=""en-US-AriaNeural""> 
+            <mstts:express-as style=""cheerful"" styledegree=""2""> 
+              I am talking to you right now in cheerful intonation
+            </mstts:express-as> 
+            <prosody rate=""+35.00%"">
+                And now faster by 35 percent - this is fast!.
+                {responseText}
+                 <break strength='strong'/>
+                 Time to end this lab!
+            </prosody>
+        </voice> 
      </speak>";
-            speak = await speechSynthesizer.SpeakSsmlAsync(responseSsml);
+            SpeechSynthesisResult speak = await speechSynthesizer.SpeakSsmlAsync(responseSsml);
             if (speak.Reason != ResultReason.SynthesizingAudioCompleted)
             {
                 Console.WriteLine(speak.Reason);
@@ -241,8 +260,6 @@ namespace speaking_clock
 
 
             // Print the response
-            Console.WriteLine(responseText);
-            Console.WriteLine("You said before" + commandToSay);
             Console.WriteLine(responseSsml);
         }
 
