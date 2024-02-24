@@ -53,8 +53,11 @@ namespace speech_translation
                     targetLanguage=Console.ReadLine().ToLower();
                     if (translationConfig.TargetLanguages.Contains(targetLanguage))
                     {
-                        //await TranslateFromMicrophone(targetLanguage);
-                        await TranslateFromAudioFile(targetLanguage);
+                        string translatedText = await TranslateFromMicrophone(targetLanguage);
+                        //string translatedText = await TranslateFromAudioFile(targetLanguage);
+                        Console.WriteLine("Press any key to synthesize the content now!");
+                        Console.ReadKey();
+                        await SynthesizeTranslation(translatedText, targetLanguage);
                     }
                     else
                     {
@@ -68,7 +71,7 @@ namespace speech_translation
             }
         }
 
-        static async Task TranslateFromMicrophone(string targetLanguage)
+        static async Task<string> TranslateFromMicrophone(string targetLanguage)
         {
             string translation = "";
 
@@ -81,14 +84,10 @@ namespace speech_translation
             translation = result.Translations[targetLanguage];
             Console.OutputEncoding = Encoding.UTF8;
             Console.WriteLine(translation);
-
-
-            // Synthesize translation
-
-
+            return translation;
         }
 
-        static async Task TranslateFromAudioFile(string targetLanguage)
+        static async Task<string> TranslateFromAudioFile(string targetLanguage)
         {
             string translation = "";
 
@@ -104,12 +103,24 @@ namespace speech_translation
             translation = result.Translations[targetLanguage];
             Console.OutputEncoding = Encoding.UTF8;
             Console.WriteLine(translation);
-
-
-            // Synthesize translation
-
-
+            return translation;
         }
 
+        static async Task SynthesizeTranslation(string translation, string targetLanguage)
+        {
+            var voices = new Dictionary<string, string>
+            {
+                ["fr"] = "fr-FR-HenriNeural",
+                ["es"] = "es-ES-ElviraNeural",
+                ["hi"] = "hi-IN-MadhurNeural"
+            };
+            speechConfig.SpeechSynthesisVoiceName = voices[targetLanguage];
+            using SpeechSynthesizer speechSynthesizer = new SpeechSynthesizer(speechConfig);
+            SpeechSynthesisResult speak = await speechSynthesizer.SpeakTextAsync(translation);
+            if (speak.Reason != ResultReason.SynthesizingAudioCompleted)
+            {
+                Console.WriteLine(speak.Reason);
+            }
+        }
     }
 }
