@@ -33,8 +33,10 @@ namespace speaking_clock
 
                 // Get spoken input
                 string command = "";
-                command = await TranscribeCommand();
-                //await TellTime(command);
+                //command = await TranscribeCommandFromMicrophone();
+                command = await TranscribeCommandFromAudio();
+                //command = await TranscribeCommandFromAudioWithChunks();
+                await TellTime(command);
                 Console.ReadLine();
 
             }
@@ -44,22 +46,47 @@ namespace speaking_clock
             }
         }
 
-        static async Task<string> TranscribeCommand()
+        static async Task<string> TranscribeCommandFromMicrophone()
         {
             string command = "";
 
             // Configure speech recognition microphone
-            //using AudioConfig audioConfig = AudioConfig.FromDefaultMicrophoneInput();
-            //using SpeechRecognizer speechRecognizer = new SpeechRecognizer(speechConfig, audioConfig);
-            //Console.WriteLine("Speak now...");
+            using AudioConfig audioConfig = AudioConfig.FromDefaultMicrophoneInput();
+            using SpeechRecognizer speechRecognizer = new SpeechRecognizer(speechConfig, audioConfig);
+            Console.WriteLine("Speak now...");
+
+            // Process speech input
+            SpeechRecognitionResult speech = await speechRecognizer.RecognizeOnceAsync();
+            if (speech.Reason == ResultReason.RecognizedSpeech)
+            {
+                command = speech.Text;
+                Console.WriteLine(command);
+            }
+            else
+            {
+                Console.WriteLine(speech.Reason);
+                if (speech.Reason == ResultReason.Canceled)
+                {
+                    var cancellation = CancellationDetails.FromResult(speech);
+                    Console.WriteLine(cancellation.Reason);
+                    Console.WriteLine(cancellation.ErrorDetails);
+                }
+            }
+
+
+            // Return the command
+            return command;
+        }
+
+        static async Task<string> TranscribeCommandFromAudio()
+        {
+            string command = "";
 
             // Configure speech recognition from an audio file
             string audioFile = "time.wav";
-            //audioFile = "gladiator.wav";
-            //audioFile = "wincrowd.wav";
             audioFile = "dream.wav";
             SoundPlayer wavPlayer = new SoundPlayer(audioFile);
-            wavPlayer.Play();
+            //wavPlayer.Play();
             using AudioConfig audioConfig = AudioConfig.FromWavFileInput(audioFile);
             using SpeechRecognizer speechRecognizer = new SpeechRecognizer(speechConfig, audioConfig);
 
@@ -80,6 +107,89 @@ namespace speaking_clock
                     Console.WriteLine(cancellation.ErrorDetails);
                 }
             }
+
+
+            // Return the command
+            return command;
+        }
+
+        static async Task<string> TranscribeCommandFromAudioWithChunks()
+        {
+            string command = "";
+
+            // Configure speech recognition from an audio file
+            string audioFile = "gladiator.wav";
+            //audioFile = "wincrowd.wav";
+            SoundPlayer wavPlayer = new SoundPlayer(audioFile);
+            //wavPlayer.Play();
+            using AudioConfig audioConfig = AudioConfig.FromWavFileInput(audioFile);
+            using SpeechRecognizer speechRecognizer = new SpeechRecognizer(speechConfig, audioConfig);
+
+            //Managing longer audio with pauses
+            var stopRecognition = new TaskCompletionSource<int>();
+            speechRecognizer.Recognizing += (s, e) =>
+            {
+                Console.WriteLine($"RECOGNIZING: Text={e.Result.Text}");
+            };
+
+            speechRecognizer.Recognized += (s, e) =>
+            {
+                if (e.Result.Reason == ResultReason.RecognizedSpeech)
+                {
+                    Console.WriteLine($"RECOGNIZED: Text={e.Result.Text}");
+                }
+                else if (e.Result.Reason == ResultReason.NoMatch)
+                {
+                    Console.WriteLine($"NOMATCH: Speech could not be recognized.");
+                }
+            };
+
+            speechRecognizer.Canceled += (s, e) =>
+            {
+                Console.WriteLine($"CANCELED: Reason={e.Reason}");
+
+                if (e.Reason == CancellationReason.Error)
+                {
+                    Console.WriteLine($"CANCELED: ErrorCode={e.ErrorCode}");
+                    Console.WriteLine($"CANCELED: ErrorDetails={e.ErrorDetails}");
+                    Console.WriteLine($"CANCELED: Did you set the speech resource key and region values?");
+                }
+
+                stopRecognition.TrySetResult(0);
+            };
+
+            speechRecognizer.SessionStopped += (s, e) =>
+            {
+                Console.WriteLine("\n    Session stopped event.");
+                stopRecognition.TrySetResult(0);
+            };
+
+            await speechRecognizer.StartContinuousRecognitionAsync();
+
+            // Waits for completion. Use Task.WaitAny to keep the task rooted.
+            Task.WaitAny(new[] { stopRecognition.Task });
+
+            // Make the following call at some point to stop recognition:
+            await speechRecognizer.StopContinuousRecognitionAsync();
+            //
+
+            // Process speech input
+            //SpeechRecognitionResult speech = await speechRecognizer.RecognizeOnceAsync();
+            //if (speech.Reason == ResultReason.RecognizedSpeech)
+            //{
+            //    command = speech.Text;
+            //    Console.WriteLine(command);
+            //}
+            //else
+            //{
+            //    Console.WriteLine(speech.Reason);
+            //    if (speech.Reason == ResultReason.Canceled)
+            //    {
+            //        var cancellation = CancellationDetails.FromResult(speech);
+            //        Console.WriteLine(cancellation.Reason);
+            //        Console.WriteLine(cancellation.ErrorDetails);
+            //    }
+            //}
 
 
             // Return the command
