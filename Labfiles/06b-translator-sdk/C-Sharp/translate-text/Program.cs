@@ -1,5 +1,4 @@
 using System;
-using System.IO;
 using System.Text;
 using System.Collections.Generic;
 using Microsoft.Extensions.Configuration;
@@ -15,6 +14,7 @@ namespace translate_text
 {
     class Program
     {
+        const string CUSTOM_MODEL_CATEGORY_ID = "";
         static async Task Main(string[] args)
         {
             try
@@ -68,6 +68,11 @@ namespace translate_text
                     if (inputText.ToLower() != "quit")
                     {
                         Response<IReadOnlyList<TranslatedTextItem>> translationResponse = await client.TranslateAsync(targetLanguage, inputText).ConfigureAwait(false);
+                        //
+                        Response<IReadOnlyList<TranslatedTextItem>> customTranslationResponse = await client.TranslateAsync(
+                            new List<string> { targetLanguage },
+                            new List<string> { inputText }, category: CUSTOM_MODEL_CATEGORY_ID).ConfigureAwait(false);
+                        //
                         IReadOnlyList<TranslatedTextItem> translations = translationResponse.Value;
                         TranslatedTextItem translation = translations[0];
                         string sourceLanguage = translation?.DetectedLanguage?.Language;
