@@ -7,10 +7,18 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="dream.wav" />
+    <None Remove="gladiator.wav" />
     <None Remove="station.wav" />
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="dream.wav">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="gladiator.wav">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="station.wav">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

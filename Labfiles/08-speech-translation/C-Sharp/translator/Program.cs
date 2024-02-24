@@ -54,9 +54,9 @@ namespace speech_translation
                     if (translationConfig.TargetLanguages.Contains(targetLanguage))
                     {
                         //string translatedText = await TranslateFromMicrophone(targetLanguage);
-                        //string translatedText = await TranslateFromAudioFile(targetLanguage);
-                        string translatedText = await TranslateFromMicrophoneDirectlyToFile(targetLanguage);
-                        translatedText = await TranslateFromAudioDirectlyToFile(targetLanguage);
+                        string translatedText = await TranslateFromAudioFile(targetLanguage);
+                        //string translatedText = await TranslateFromMicrophoneDirectlyToFile(targetLanguage);
+                        //string translatedText = await TranslateFromAudioDirectlyToFile(targetLanguage);
                         Console.WriteLine("Press any key to synthesize the content now by using SpeechConfig!");
                         Console.ReadKey();
                         await SynthesizeTranslation(translatedText, targetLanguage);
@@ -94,9 +94,11 @@ namespace speech_translation
             string translation = "";
 
             // Translate speech
-            string audioFile = "station.wav";
+            //string audioFile = "station.wav";
+            string audioFile = "gladiator.wav";
+            //string audioFile = "dream.wav";
             SoundPlayer wavPlayer = new SoundPlayer(audioFile);
-            wavPlayer.Play();
+            //wavPlayer.Play();
             using AudioConfig audioConfig = AudioConfig.FromWavFileInput(audioFile);
             using TranslationRecognizer translator = new TranslationRecognizer(translationConfig, audioConfig);
             Console.WriteLine("Getting speech from file...");
@@ -155,7 +157,9 @@ namespace speech_translation
             string translation = "";
 
             // Translate speech
-            string audioFile = "station.wav";
+            //string audioFile = "station.wav";
+            //string audioFile = "gladiator.wav";
+            string audioFile = "dream.wav";
             SoundPlayer wavPlayer = new SoundPlayer(audioFile);
             wavPlayer.Play();
             using AudioConfig audioConfig = AudioConfig.FromWavFileInput(audioFile);
