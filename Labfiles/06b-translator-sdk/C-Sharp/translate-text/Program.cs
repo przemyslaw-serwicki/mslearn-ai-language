@@ -3,12 +3,9 @@ using System.Text;
 using System.Collections.Generic;
 using Microsoft.Extensions.Configuration;
 using System.Threading.Tasks;
-
 // import namespaces
 using Azure;
 using Azure.AI.Translation.Text;
-
-
 
 namespace translate_text
 {
@@ -29,12 +26,9 @@ namespace translate_text
                 string translatorRegion = configuration["TranslatorRegion"];
                 string translatorKey = configuration["TranslatorKey"];
 
-
                 // Create client using endpoint and key
                 AzureKeyCredential credential = new(translatorKey);
                 TextTranslationClient client = new(credential, translatorRegion);
-
-
 
                 // Choose target language
                 Response<GetLanguagesResult> languagesResponse = await client.GetLanguagesAsync(scope: "translation").ConfigureAwait(false);
@@ -57,8 +51,6 @@ namespace translate_text
 
                 }
 
-
-
                 // Translate text
                 string inputText = "";
                 while (inputText.ToLower() != "quit")
@@ -68,28 +60,22 @@ namespace translate_text
                     if (inputText.ToLower() != "quit")
                     {
                         Response<IReadOnlyList<TranslatedTextItem>> translationResponse = await client.TranslateAsync(targetLanguage, inputText).ConfigureAwait(false);
-                        //
+
                         Response<IReadOnlyList<TranslatedTextItem>> customTranslationResponse = await client.TranslateAsync(
                             new List<string> { targetLanguage },
                             new List<string> { inputText }, category: CUSTOM_MODEL_CATEGORY_ID).ConfigureAwait(false);
-                        //
+
                         IReadOnlyList<TranslatedTextItem> translations = translationResponse.Value;
                         TranslatedTextItem translation = translations[0];
                         string sourceLanguage = translation?.DetectedLanguage?.Language;
                         Console.WriteLine($"'{inputText}' translated from {sourceLanguage} to {translation?.Translations[0].To} as '{translation?.Translations?[0]?.Text}'.");
                     }
                 }
-
-
-
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
             }
         }
-
-
-
     }
 }
