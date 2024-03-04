@@ -33,12 +33,46 @@ namespace speaking_clock
 
                 // Get spoken input
                 string command = "";
-                //command = await TranscribeCommandFromMicrophone();
-                command = await TranscribeCommandFromAudio();
-                //command = await TranscribeCommandFromAudioWithChunks();
-                //await TellCommand(command);
-                await TellWithSsml();
-                Console.ReadLine();
+
+                while (true) // Loop indefinitely
+                {
+                    Console.WriteLine("Enter a number (1-3) to test transcribe: 1-microphone; 2-quick-audio-file; 3-audio-file-with-longer-pauses");
+                    Console.WriteLine("Or type 'quit' to exit."); // Add the option to quit
+
+                    string flow = Console.ReadLine();
+
+                    if (flow.Trim().ToLower() == "quit")  // Check for exit condition
+                    {
+                        break; // Exit the loop
+                    }
+
+                    command = flow.Trim() switch
+                    {
+                        "1" => await TranscribeCommandFromMicrophone(),
+                        "2" => await TranscribeCommandFromAudio(),
+                        "3" => await TranscribeCommandFromAudioWithChunks(),
+                        _ => "This is my default text to test the synthesizer.",
+                    };
+
+                    Console.WriteLine("Enter a number (4-6) to synthesize: 4-SSML with faster filter; 5-SSML with cheerful intonation; 6-Comparing with phonema. Otherwise it will be default synthesis containing your earlier command:");
+                    flow = Console.ReadLine();
+
+                    switch (flow.Trim())
+                    {
+                        case "4":
+                            await SynthesizeWithSsmlFaster(command);
+                            break;
+                        case "5":
+                            await SynthesizeWithSsmlCheerful(command);
+                            break;
+                        case "6":
+                            await SynthesizeTomatoTextWithCheerfulAndPhoneme();
+                            break;
+                        default:
+                            await SynthesizeCommand(command);
+                            break;
+                    }
+                }
 
             }
             catch (Exception ex)
@@ -84,10 +118,17 @@ namespace speaking_clock
             string command = "";
 
             // Configure speech recognition from an audio file
-            string audioFile = "time.wav";
-            audioFile = "dream.wav";
+            Console.WriteLine("Enter a 't'->(time) or 'd'->(dream) to choose audio file. By default I would use time file");
+            string flow = Console.ReadLine();
+
+            string audioFile = flow.Trim() switch
+            {
+                "t" => "time.wav",
+                "d" => "dream.wav",
+                _ => "time.wav",
+            };
             SoundPlayer wavPlayer = new SoundPlayer(audioFile);
-            //wavPlayer.Play();
+            wavPlayer.Play();
             using AudioConfig audioConfig = AudioConfig.FromWavFileInput(audioFile);
             using SpeechRecognizer speechRecognizer = new SpeechRecognizer(speechConfig, audioConfig);
 
@@ -119,10 +160,17 @@ namespace speaking_clock
             string command = "";
 
             // Configure speech recognition from an audio file
-            string audioFile = "gladiator.wav";
-            //audioFile = "wincrowd.wav";
+            Console.WriteLine("Enter a 'g'->(gladiator) or 'w'->(wincrowd) to choose audio file. By default I would use gladiator file");
+            string flow = Console.ReadLine();
+
+            string audioFile = flow.Trim() switch
+            {
+                "g" => "gladiator.wav",
+                "w" => "wincrowd.wav",
+                _ => "gladiator.wav",
+            };
             SoundPlayer wavPlayer = new SoundPlayer(audioFile);
-            //wavPlayer.Play();
+            wavPlayer.Play();
             using AudioConfig audioConfig = AudioConfig.FromWavFileInput(audioFile);
             using SpeechRecognizer speechRecognizer = new SpeechRecognizer(speechConfig, audioConfig);
 
@@ -138,6 +186,7 @@ namespace speaking_clock
                 if (e.Result.Reason == ResultReason.RecognizedSpeech)
                 {
                     Console.WriteLine($"RECOGNIZED: Text={e.Result.Text}");
+                    command = e.Result.Text;
                 }
                 else if (e.Result.Reason == ResultReason.NoMatch)
                 {
@@ -173,80 +222,42 @@ namespace speaking_clock
             // Make the following call at some point to stop recognition:
             await speechRecognizer.StopContinuousRecognitionAsync();
             //
-
-            // Process speech input
-            //SpeechRecognitionResult speech = await speechRecognizer.RecognizeOnceAsync();
-            //if (speech.Reason == ResultReason.RecognizedSpeech)
-            //{
-            //    command = speech.Text;
-            //    Console.WriteLine(command);
-            //}
-            //else
-            //{
-            //    Console.WriteLine(speech.Reason);
-            //    if (speech.Reason == ResultReason.Canceled)
-            //    {
-            //        var cancellation = CancellationDetails.FromResult(speech);
-            //        Console.WriteLine(cancellation.Reason);
-            //        Console.WriteLine(cancellation.ErrorDetails);
-            //    }
-            //}
-
-
             // Return the command
             return command;
         }
 
-        static async Task TellCommand(string commandToSay)
+        static async Task SynthesizeCommand(string commandToSay)
         {
-            var now = DateTime.Now;
-            string responseText = "The time is " + now.Hour.ToString() + ":" + now.Minute.ToString("D2");
-
+            string command = "You said before: " + commandToSay;
             // Configure speech synthesis
             speechConfig.SpeechSynthesisVoiceName = "en-GB-LibbyNeural";
             using SpeechSynthesizer speechSynthesizer = new SpeechSynthesizer(speechConfig);
-
-
-            // Synthesize spoken output
-            SpeechSynthesisResult speak = await speechSynthesizer.SpeakTextAsync(responseText);
-            if (speak.Reason != ResultReason.SynthesizingAudioCompleted)
-            {
-                Console.WriteLine(speak.Reason);
-            }
 
             //Custom command you said earlier
-            speak = await speechSynthesizer.SpeakTextAsync("You said before" + commandToSay);
+            SpeechSynthesisResult speak = await speechSynthesizer.SpeakTextAsync(command);
             if (speak.Reason != ResultReason.SynthesizingAudioCompleted)
             {
                 Console.WriteLine(speak.Reason);
             }
-
-
             // Print the response
-            Console.WriteLine(responseText);
-            Console.WriteLine("You said before" + commandToSay);
+            Console.WriteLine(command);
         }
 
-        static async Task TellWithSsml()
+        static async Task SynthesizeWithSsmlFaster(string commandToSay)
         {
-            var now = DateTime.Now;
-            string responseText = "The time is " + now.Hour.ToString() + ":" + now.Minute.ToString("D2");
+            string command = "You said before: " + commandToSay;
 
             // Configure speech synthesis
             speechConfig.SpeechSynthesisVoiceName = "en-GB-LibbyNeural";
             using SpeechSynthesizer speechSynthesizer = new SpeechSynthesizer(speechConfig);
-
 
             // Synthesize spoken output
             string responseSsml = $@"
      <speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xml:lang='en-US' xmlns:mstts=""https://www.w3.org/2001/mstts"">
         <voice name=""en-US-AriaNeural""> 
-            <mstts:express-as style=""cheerful"" styledegree=""2""> 
-              I am talking to you right now in cheerful intonation
-            </mstts:express-as> 
             <prosody rate=""+35.00%"">
-                And now faster by 35 percent - this is fast!.
-                {responseText}
+                And now faster by 35 percent!.
+                {command}
                  <break strength='strong'/>
                  Time to end this lab!
             </prosody>
@@ -257,8 +268,61 @@ namespace speaking_clock
             {
                 Console.WriteLine(speak.Reason);
             }
+            // Print the response
+            Console.WriteLine(responseSsml);
+        }
 
+        static async Task SynthesizeWithSsmlCheerful(string commandToSay)
+        {
+            string command = "You said before: " + commandToSay;
+            // Configure speech synthesis
+            speechConfig.SpeechSynthesisVoiceName = "en-GB-LibbyNeural";
+            using SpeechSynthesizer speechSynthesizer = new SpeechSynthesizer(speechConfig);
 
+            // Synthesize spoken output
+            string responseSsml = $@"
+<speak version=""1.0"" xmlns=""http://www.w3.org/2001/10/synthesis"" 
+                     xmlns:mstts=""https://www.w3.org/2001/mstts"" xml:lang=""en-US""> 
+    <voice name=""en-US-AriaNeural""> 
+        <mstts:express-as style=""cheerful""> 
+          {command}
+        </mstts:express-as> 
+    </voice> 
+</speak>";
+            SpeechSynthesisResult speak = await speechSynthesizer.SpeakSsmlAsync(responseSsml);
+            if (speak.Reason != ResultReason.SynthesizingAudioCompleted)
+            {
+                Console.WriteLine(speak.Reason);
+            }
+            // Print the response
+            Console.WriteLine(responseSsml);
+        }
+
+        static async Task SynthesizeTomatoTextWithCheerfulAndPhoneme()
+        {
+            // Configure speech synthesis
+            speechConfig.SpeechSynthesisVoiceName = "en-GB-LibbyNeural";
+            using SpeechSynthesizer speechSynthesizer = new SpeechSynthesizer(speechConfig);
+
+            // Synthesize spoken output
+            string responseSsml = $@"
+<speak version=""1.0"" xmlns=""http://www.w3.org/2001/10/synthesis"" 
+                     xmlns:mstts=""https://www.w3.org/2001/mstts"" xml:lang=""en-US""> 
+    <voice name=""en-US-AriaNeural""> 
+        <mstts:express-as style=""cheerful""> 
+          Cheerful intonation - I say tomato
+        </mstts:express-as> 
+    </voice> 
+    <voice name=""en-US-GuyNeural""> 
+        I say <phoneme alphabet=""sapi"" ph=""t ao m ae t ow""> tomato </phoneme>. 
+        <break strength=""weak""/>Lets call the whole thing off! 
+    </voice> 
+</speak>";
+            SpeechSynthesisResult speak = await speechSynthesizer.SpeakSsmlAsync(responseSsml);
+            if (speak.Reason != ResultReason.SynthesizingAudioCompleted)
+            {
+                Console.WriteLine(speak.Reason);
+            }
             // Print the response
             Console.WriteLine(responseSsml);
         }
