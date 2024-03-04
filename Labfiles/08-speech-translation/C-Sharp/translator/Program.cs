@@ -53,13 +53,46 @@ namespace speech_translation
                     targetLanguage=Console.ReadLine().ToLower();
                     if (translationConfig.TargetLanguages.Contains(targetLanguage))
                     {
-                        //string translatedText = await TranslateFromMicrophone(targetLanguage);
-                        string translatedText = await TranslateFromAudioFile(targetLanguage);
-                        //string translatedText = await TranslateFromMicrophoneDirectlyToFile(targetLanguage);
-                        //string translatedText = await TranslateFromAudioDirectlyToFile(targetLanguage);
-                        Console.WriteLine("Press any key to synthesize the content now by using SpeechConfig!");
-                        Console.ReadKey();
-                        await SynthesizeTranslation(translatedText, targetLanguage);
+                        Console.WriteLine("Enter your choice (1-4):");
+                        Console.WriteLine("1. Translate from microphone");
+                        Console.WriteLine("2. Translate from audio file");
+                        Console.WriteLine("3. Translate from microphone directly to file");
+                        Console.WriteLine("4. Translate from audio directly to file");
+
+                        string choice = Console.ReadLine();
+
+                        string translatedText = ""; // Initialize
+
+                        switch (choice)
+                        {
+                            case "1":
+                                translatedText = await TranslateFromMicrophone(targetLanguage);
+                                break;
+                            case "2":
+                                translatedText = await TranslateFromAudioFile(targetLanguage);
+                                break;
+                            case "3":
+                                translatedText = await TranslateFromMicrophoneDirectlyToFile(targetLanguage);
+                                break;
+                            case "4":
+                                translatedText = await TranslateFromAudioDirectlyToFile(targetLanguage);
+                                break;
+                            default:
+                                Console.WriteLine("Invalid choice");
+                                break;
+                        }
+
+                        Console.WriteLine("Synthesize the translation? (Y/N)");
+                        string synthesizeChoice = Console.ReadLine().ToLower();
+
+                        if (synthesizeChoice == "y")
+                        {
+                            await SynthesizeTranslation(translatedText, targetLanguage);
+                        }
+                        else
+                        {
+                            Console.WriteLine("Skipping synthesis.");
+                        }
                     }
                     else
                     {
@@ -94,11 +127,17 @@ namespace speech_translation
             string translation = "";
 
             // Translate speech
-            //string audioFile = "station.wav";
-            string audioFile = "gladiator.wav";
-            //string audioFile = "dream.wav";
+            Console.WriteLine("Enter a 's'->(station), 'g'->(gladiator) or 'd'->(dream) to choose audio file. By default I would use station file");
+            string flow = Console.ReadLine();
+
+            string audioFile = flow.Trim() switch
+            {
+                "g" => "gladiator.wav",
+                "d" => "dream.wav",
+                _ => "station.wav",
+            };
             SoundPlayer wavPlayer = new SoundPlayer(audioFile);
-            //wavPlayer.Play();
+            wavPlayer.Play();
             using AudioConfig audioConfig = AudioConfig.FromWavFileInput(audioFile);
             using TranslationRecognizer translator = new TranslationRecognizer(translationConfig, audioConfig);
             Console.WriteLine("Getting speech from file...");
@@ -108,23 +147,6 @@ namespace speech_translation
             Console.OutputEncoding = Encoding.UTF8;
             Console.WriteLine(translation);
             return translation;
-        }
-
-        static async Task SynthesizeTranslation(string translation, string targetLanguage)
-        {
-            var voices = new Dictionary<string, string>
-            {
-                ["fr"] = "fr-FR-HenriNeural",
-                ["es"] = "es-ES-ElviraNeural",
-                ["hi"] = "hi-IN-MadhurNeural"
-            };
-            speechConfig.SpeechSynthesisVoiceName = voices[targetLanguage];
-            using SpeechSynthesizer speechSynthesizer = new SpeechSynthesizer(speechConfig);
-            SpeechSynthesisResult speak = await speechSynthesizer.SpeakTextAsync(translation);
-            if (speak.Reason != ResultReason.SynthesizingAudioCompleted)
-            {
-                Console.WriteLine(speak.Reason);
-            }
         }
 
         static async Task<string> TranslateFromMicrophoneDirectlyToFile(string targetLanguage)
@@ -157,9 +179,15 @@ namespace speech_translation
             string translation = "";
 
             // Translate speech
-            //string audioFile = "station.wav";
-            //string audioFile = "gladiator.wav";
-            string audioFile = "dream.wav";
+            Console.WriteLine("Enter a 's'->(station), 'g'->(gladiator) or 'd'->(dream) to choose audio file. By default I would use station file");
+            string flow = Console.ReadLine();
+
+            string audioFile = flow.Trim() switch
+            {
+                "g" => "gladiator.wav",
+                "d" => "dream.wav",
+                _ => "station.wav",
+            };
             SoundPlayer wavPlayer = new SoundPlayer(audioFile);
             wavPlayer.Play();
             using AudioConfig audioConfig = AudioConfig.FromWavFileInput(audioFile);
@@ -181,6 +209,23 @@ namespace speech_translation
             await stream.SaveToWaveFileAsync(audioFileName);
             Console.WriteLine($"Translation saved to {audioFileName}");
             return translation;
+        }
+
+        static async Task SynthesizeTranslation(string translation, string targetLanguage)
+        {
+            var voices = new Dictionary<string, string>
+            {
+                ["fr"] = "fr-FR-HenriNeural",
+                ["es"] = "es-ES-ElviraNeural",
+                ["hi"] = "hi-IN-MadhurNeural"
+            };
+            speechConfig.SpeechSynthesisVoiceName = voices[targetLanguage];
+            using SpeechSynthesizer speechSynthesizer = new SpeechSynthesizer(speechConfig);
+            SpeechSynthesisResult speak = await speechSynthesizer.SpeakTextAsync(translation);
+            if (speak.Reason != ResultReason.SynthesizingAudioCompleted)
+            {
+                Console.WriteLine(speak.Reason);
+            }
         }
     }
 }

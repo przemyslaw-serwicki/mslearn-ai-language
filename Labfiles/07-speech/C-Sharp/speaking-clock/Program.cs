@@ -123,7 +123,6 @@ namespace speaking_clock
 
             string audioFile = flow.Trim() switch
             {
-                "t" => "time.wav",
                 "d" => "dream.wav",
                 _ => "time.wav",
             };
@@ -165,7 +164,6 @@ namespace speaking_clock
 
             string audioFile = flow.Trim() switch
             {
-                "g" => "gladiator.wav",
                 "w" => "wincrowd.wav",
                 _ => "gladiator.wav",
             };
