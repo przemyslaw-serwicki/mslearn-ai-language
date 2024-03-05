@@ -181,7 +181,6 @@ namespace speech_translation
             // Translate speech
             Console.WriteLine("Enter a 's'->(station), 'g'->(goodman) or 'h'->(house) to choose audio file. By default I would use station file");
             string flow = Console.ReadLine();
-
             string audioFile = flow.Trim() switch
             {
                 "g" => "goodman.wav",
@@ -190,8 +189,11 @@ namespace speech_translation
             };
             SoundPlayer wavPlayer = new SoundPlayer(audioFile);
             wavPlayer.Play();
+            
             using AudioConfig audioConfig = AudioConfig.FromWavFileInput(audioFile);
             using TranslationRecognizer translator = new TranslationRecognizer(translationConfig, audioConfig);
+            using SpeechSynthesizer speechSynthesizer = new SpeechSynthesizer(translationConfig);
+
             Console.WriteLine("Getting speech from file...");
             TranslationRecognitionResult result = await translator.RecognizeOnceAsync();
             Console.WriteLine($"Translating '{result.Text}'");
@@ -202,7 +204,6 @@ namespace speech_translation
             // Save the synthesized translation to a file
             Console.WriteLine("Press any key to synthesize the content now by using SpeechTranslationConfig!");
             Console.ReadKey();
-            using SpeechSynthesizer speechSynthesizer = new SpeechSynthesizer(translationConfig);
             var synthesisResult = await speechSynthesizer.SpeakTextAsync(translation);
             using var stream = AudioDataStream.FromResult(synthesisResult);
             string audioFileName = "translation_from_audio.wav";
