@@ -118,12 +118,13 @@ namespace speaking_clock
             string command = "";
 
             // Configure speech recognition from an audio file
-            Console.WriteLine("Enter a 't'->(time) or 'd'->(dream) to choose audio file. By default I would use time file");
+            Console.WriteLine("Enter a 't'->(time), 'd'->(dream) or 'm'->(merciful) to choose audio file. By default I would use time file");
             string flow = Console.ReadLine();
 
             string audioFile = flow.Trim() switch
             {
                 "d" => "dream.wav",
+                "m" => "merciful.wav",
                 _ => "time.wav",
             };
             SoundPlayer wavPlayer = new SoundPlayer(audioFile);
@@ -159,12 +160,13 @@ namespace speaking_clock
             string command = "";
 
             // Configure speech recognition from an audio file
-            Console.WriteLine("Enter a 'g'->(gladiator) or 'w'->(wincrowd) to choose audio file. By default I would use gladiator file");
+            Console.WriteLine("Enter a 'g'->(gladiator), 'w'->(wincrowd) or 'n'->(notyet) to choose audio file. By default I would use gladiator file");
             string flow = Console.ReadLine();
 
             string audioFile = flow.Trim() switch
             {
                 "w" => "wincrowd.wav",
+                "n" => "notyet.wav",
                 _ => "gladiator.wav",
             };
             SoundPlayer wavPlayer = new SoundPlayer(audioFile);
@@ -184,7 +186,7 @@ namespace speaking_clock
                 if (e.Result.Reason == ResultReason.RecognizedSpeech)
                 {
                     Console.WriteLine($"RECOGNIZED: Text={e.Result.Text}");
-                    command = e.Result.Text;
+                    command += e.Result.Text;
                 }
                 else if (e.Result.Reason == ResultReason.NoMatch)
                 {

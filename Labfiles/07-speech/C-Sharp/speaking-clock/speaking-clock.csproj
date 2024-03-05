@@ -9,6 +9,9 @@
   <ItemGroup>
     <None Remove="dream.wav" />
     <None Remove="gladiator.wav" />
+    <None Remove="merciful.wav" />
+    <None Remove="notyet.wav" />
+    <None Remove="salute.wav" />
     <None Remove="time.wav" />
     <None Remove="wincrowd.wav" />
   </ItemGroup>
@@ -18,6 +21,12 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="gladiator.wav">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="merciful.wav">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="notyet.wav">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="time.wav">

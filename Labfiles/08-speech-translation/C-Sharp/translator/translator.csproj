@@ -9,14 +9,19 @@
   <ItemGroup>
     <None Remove="dream.wav" />
     <None Remove="gladiator.wav" />
+    <None Remove="goodman.wav" />
+    <None Remove="house.wav" />
     <None Remove="station.wav" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="dream.wav">
+    <Content Include="gladiator.wav">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="gladiator.wav">
+    <Content Include="goodman.wav">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="house.wav">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="station.wav">

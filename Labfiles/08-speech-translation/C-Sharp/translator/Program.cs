@@ -127,13 +127,13 @@ namespace speech_translation
             string translation = "";
 
             // Translate speech
-            Console.WriteLine("Enter a 's'->(station), 'g'->(gladiator) or 'd'->(dream) to choose audio file. By default I would use station file");
+            Console.WriteLine("Enter a 's'->(station), 'g'->(goodman) or 'h'->(house) to choose audio file. By default I would use station file");
             string flow = Console.ReadLine();
 
             string audioFile = flow.Trim() switch
             {
-                "g" => "gladiator.wav",
-                "d" => "dream.wav",
+                "g" => "goodman.wav",
+                "h" => "house.wav",
                 _ => "station.wav",
             };
             SoundPlayer wavPlayer = new SoundPlayer(audioFile);
@@ -179,13 +179,13 @@ namespace speech_translation
             string translation = "";
 
             // Translate speech
-            Console.WriteLine("Enter a 's'->(station), 'g'->(gladiator) or 'd'->(dream) to choose audio file. By default I would use station file");
+            Console.WriteLine("Enter a 's'->(station), 'g'->(goodman) or 'h'->(house) to choose audio file. By default I would use station file");
             string flow = Console.ReadLine();
 
             string audioFile = flow.Trim() switch
             {
-                "g" => "gladiator.wav",
-                "d" => "dream.wav",
+                "g" => "goodman.wav",
+                "h" => "house.wav",
                 _ => "station.wav",
             };
             SoundPlayer wavPlayer = new SoundPlayer(audioFile);
