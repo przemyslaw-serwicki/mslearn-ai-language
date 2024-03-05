@@ -117,7 +117,6 @@ namespace speaking_clock
         {
             string command = "";
 
-            // Configure speech recognition from an audio file
             Console.WriteLine("Enter a 't'->(time), 'd'->(dream) or 'm'->(merciful) to choose audio file. By default I would use time file");
             string flow = Console.ReadLine();
 
@@ -129,6 +128,7 @@ namespace speaking_clock
             };
             SoundPlayer wavPlayer = new SoundPlayer(audioFile);
             wavPlayer.Play();
+            // Configure speech recognition from an audio file
             using AudioConfig audioConfig = AudioConfig.FromWavFileInput(audioFile);
             using SpeechRecognizer speechRecognizer = new SpeechRecognizer(speechConfig, audioConfig);
 
@@ -159,7 +159,6 @@ namespace speaking_clock
         {
             string command = "";
 
-            // Configure speech recognition from an audio file
             Console.WriteLine("Enter a 'g'->(gladiator), 'w'->(wincrowd) or 'n'->(notyet) to choose audio file. By default I would use gladiator file");
             string flow = Console.ReadLine();
 
@@ -171,6 +170,7 @@ namespace speaking_clock
             };
             SoundPlayer wavPlayer = new SoundPlayer(audioFile);
             wavPlayer.Play();
+            // Configure speech recognition from an audio file
             using AudioConfig audioConfig = AudioConfig.FromWavFileInput(audioFile);
             using SpeechRecognizer speechRecognizer = new SpeechRecognizer(speechConfig, audioConfig);
 
@@ -258,8 +258,6 @@ namespace speaking_clock
             <prosody rate=""+35.00%"">
                 And now faster by 35 percent!.
                 {command}
-                 <break strength='strong'/>
-                 Time to end this lab!
             </prosody>
         </voice> 
      </speak>";
@@ -315,7 +313,7 @@ namespace speaking_clock
     </voice> 
     <voice name=""en-US-GuyNeural""> 
         I say <phoneme alphabet=""sapi"" ph=""t ao m ae t ow""> tomato </phoneme>. 
-        <break strength=""weak""/>Lets call the whole thing off! 
+        <break strength=""strong""/>Lets call the whole thing off! 
     </voice> 
 </speak>";
             SpeechSynthesisResult speak = await speechSynthesizer.SpeakSsmlAsync(responseSsml);
