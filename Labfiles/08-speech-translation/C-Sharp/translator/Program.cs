@@ -9,6 +9,7 @@ using Microsoft.CognitiveServices.Speech;
 using Microsoft.CognitiveServices.Speech.Audio;
 using Microsoft.CognitiveServices.Speech.Translation;
 using System.Media;
+using System.IO;
 
 
 namespace speech_translation
@@ -58,6 +59,8 @@ namespace speech_translation
                         Console.WriteLine("2. Translate from audio file");
                         Console.WriteLine("3. Translate from microphone directly to file");
                         Console.WriteLine("4. Translate from audio directly to file");
+                        Console.WriteLine("5. Translate from microphone with event based synthesis - speech-to-speech");
+                        Console.WriteLine("6. Translate from audio with event based synthesis - speech-to-speech");
 
                         string choice = Console.ReadLine();
 
@@ -76,6 +79,12 @@ namespace speech_translation
                                 break;
                             case "4":
                                 translatedText = await TranslateFromAudioDirectlyToFile(targetLanguage);
+                                break;
+                            case "5":
+                                await TranslateFromMicrophoneWithEventBasedSynthesis(targetLanguage);
+                                break;
+                            case "6":
+                                await TranslateFromAudioFileWithEventBasedSynthesis(targetLanguage);
                                 break;
                             default:
                                 Console.WriteLine("Invalid choice");
@@ -226,6 +235,78 @@ namespace speech_translation
             if (speak.Reason != ResultReason.SynthesizingAudioCompleted)
             {
                 Console.WriteLine(speak.Reason);
+            }
+        }
+
+        static async Task TranslateFromMicrophoneWithEventBasedSynthesis(string targetLanguage)
+        {
+            translationConfig.SpeechRecognitionLanguage = "en-US";
+            translationConfig.RemoveTargetLanguage("fr");
+            translationConfig.RemoveTargetLanguage("es");
+            translationConfig.RemoveTargetLanguage("hi");
+            translationConfig.AddTargetLanguage(targetLanguage);
+            using AudioConfig audioConfig = AudioConfig.FromDefaultMicrophoneInput();
+            using TranslationRecognizer translator = new TranslationRecognizer(translationConfig, audioConfig);
+            Console.WriteLine("Speak now...");
+
+            //IT DOES NOT WORK
+            translator.Synthesizing += (_, e) =>
+            {
+                var audio = e.Result.GetAudio();
+                Console.WriteLine($"Audio synthesized: {audio.Length:#,0} byte(s) {(audio.Length == 0 ? "(Complete)" : "")}");
+
+                if (audio.Length > 0)
+                {
+                    File.WriteAllBytes("EventBasedSynthesisFromMicrophone.wav", audio);
+                }
+            };
+
+            var result = await translator.RecognizeOnceAsync();
+            if (result.Reason == ResultReason.TranslatedSpeech)
+            {
+                Console.WriteLine($"Recognized: \"{result.Text}\"");
+            }
+        }
+
+        static async Task TranslateFromAudioFileWithEventBasedSynthesis(string targetLanguage)
+        {
+            // Translate speech
+            Console.WriteLine("Enter a 's'->(station), 'g'->(goodman) or 'h'->(house) to choose audio file. By default I would use station file");
+            string flow = Console.ReadLine();
+
+            string audioFile = flow.Trim() switch
+            {
+                "g" => "goodman.wav",
+                "h" => "house.wav",
+                _ => "station.wav",
+            };
+            SoundPlayer wavPlayer = new SoundPlayer(audioFile);
+            wavPlayer.Play();
+
+            translationConfig.SpeechRecognitionLanguage = "en-US";
+            translationConfig.RemoveTargetLanguage("fr");
+            translationConfig.RemoveTargetLanguage("es");
+            translationConfig.RemoveTargetLanguage("hi");
+            translationConfig.AddTargetLanguage(targetLanguage);
+            using AudioConfig audioConfig = AudioConfig.FromWavFileInput(audioFile);
+            using TranslationRecognizer translator = new TranslationRecognizer(translationConfig, audioConfig);
+
+            //IT DOES NOT WORK
+            translator.Synthesizing += (_, e) =>
+            {
+                var audio = e.Result.GetAudio();
+                Console.WriteLine($"Audio synthesized: {audio.Length:#,0} byte(s) {(audio.Length == 0 ? "(Complete)" : "")}");
+
+                if (audio.Length > 0)
+                {
+                    File.WriteAllBytes("EventBasedSynthesisFromAudioFile.wav", audio);
+                }
+            };
+
+            var result = await translator.RecognizeOnceAsync();
+            if (result.Reason == ResultReason.TranslatedSpeech)
+            {
+                Console.WriteLine($"Recognized: \"{result.Text}\"");
             }
         }
     }
