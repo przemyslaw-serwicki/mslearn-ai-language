@@ -156,7 +156,7 @@ namespace speech_translation
             // Translate speech
             using AudioConfig audioConfig = AudioConfig.FromDefaultMicrophoneInput();
             using TranslationRecognizer translator = new TranslationRecognizer(translationConfig, audioConfig);
-            using SpeechSynthesizer synthesizer = new SpeechSynthesizer(translationConfig);
+            using SpeechSynthesizer speechSynthesizer = new SpeechSynthesizer(translationConfig);
 
             Console.WriteLine("Speak now...");
             TranslationRecognitionResult result = await translator.RecognizeOnceAsync();
@@ -166,7 +166,7 @@ namespace speech_translation
             Console.WriteLine(translation);
 
             // Save the synthesized translation to a file
-            var synthesisResult = await synthesizer.SpeakTextAsync(translation);
+            var synthesisResult = await speechSynthesizer.SpeakTextAsync(translation);
             using var stream = AudioDataStream.FromResult(synthesisResult);
             string audioFileName = "translation_from_microphone.wav";
             await stream.SaveToWaveFileAsync(audioFileName);
@@ -202,8 +202,8 @@ namespace speech_translation
             // Save the synthesized translation to a file
             Console.WriteLine("Press any key to synthesize the content now by using SpeechTranslationConfig!");
             Console.ReadKey();
-            using SpeechSynthesizer synthesizer = new SpeechSynthesizer(translationConfig);
-            var synthesisResult = await synthesizer.SpeakTextAsync(translation);
+            using SpeechSynthesizer speechSynthesizer = new SpeechSynthesizer(translationConfig);
+            var synthesisResult = await speechSynthesizer.SpeakTextAsync(translation);
             using var stream = AudioDataStream.FromResult(synthesisResult);
             string audioFileName = "translation_from_audio.wav";
             await stream.SaveToWaveFileAsync(audioFileName);
